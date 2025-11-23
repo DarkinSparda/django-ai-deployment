@@ -273,13 +273,14 @@
             <div class="input-section">
                 <h2>Enter Youtube Video Link</h2>
                 <div class="input-wrapper">
-                    <input 
-                        id="youtubeLink" 
-                        type="url" 
+                    <input
+                        id="youtubeLink"
+                        type="url"
                         placeholder="Paste Youtube Link..."
                     >
                     <button id="generateBlogButton" type="button">Generate</button>
                 </div>
+                {% csrf_token %}
             </div>
 
             <!-- section for loading circle -->
@@ -310,12 +311,14 @@
                 blogContent.innerHTML = ''; // Clear previous content
 
                 const endpointUrl = '/generate-blog';
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
                 try {
                     const response = await fetch(endpointUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,
                         },
                         body: JSON.stringify({ link: youtubeLink })
                     });
