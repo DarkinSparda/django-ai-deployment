@@ -1,0 +1,10 @@
+Django
+djangorestframework
+djangorestframework-simplejwt
+dotenv
+psycopg2-binary
+pytube
+assemblyai
+langchain
+langchain-google-genai
+nest_asyncio

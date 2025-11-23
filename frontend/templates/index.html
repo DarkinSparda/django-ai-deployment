@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Blog Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        nav {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        nav h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        nav a {
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Loading Circle */
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .load {
+            width: 80px;
+            height: 80px;
+            margin: 2rem auto;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: rotate 1s linear infinite;
+        }
+
+        #loading-circle {
+            display: none;
+        }
+
+        /* Main Container */
+        .card-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* Introduction Section */
+        .intro-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .intro-section p {
+            color: #4b5563;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        /* Input Section */
+        .input-section {
+            margin: 2.5rem 0;
+        }
+
+        .input-section h2 {
+            color: #2d3748;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        #youtubeLink {
+            flex-grow: 1;
+            padding: 0.9rem 1.2rem;
+            border: none;
+            font-size: 1rem;
+            background: #f7fafc;
+            color: #2d3748;
+            transition: background 0.3s ease;
+        }
+
+        #youtubeLink:focus {
+            outline: none;
+            background: #edf2f7;
+        }
+
+        #youtubeLink::placeholder {
+            color: #a0aec0;
+        }
+
+        #generateBlogButton {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.9rem 2rem;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        #generateBlogButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        #generateBlogButton:active {
+            transform: translateY(0);
+        }
+
+        /* Blog Content Section */
+        .blog-section {
+            margin-top: 3rem;
+        }
+
+        .blog-section h2 {
+            color: #2d3748;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        #blogContent {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            line-height: 1.8;
+            color: #2d3748;
+            min-height: 100px;
+            space-y: 1rem;
+        }
+
+        #blogContent h1, #blogContent h2, #blogContent h3 {
+            color: #667eea;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        #blogContent p {
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.1);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #764ba2;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .card-container {
+                padding: 1.5rem;
+            }
+
+            .intro-section h2 {
+                font-size: 1.5rem;
+            }
+
+            nav h1 {
+                font-size: 1.3rem;
+            }
+
+            .input-wrapper {
+                flex-direction: column;
+            }
+
+            #generateBlogButton {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Navbar -->
+    <nav class="p-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-white"><i class="fas fa-brain"></i> AI Blog Generator</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <a href="#" class="text-white hover:underline">Welcome {{ user.username }}</a>
+            <a href="/blog-list" class="text-white hover:underline">Saved Blog Posts</a>
+            <a href="#" class="text-white hover:underline">Logout</a>
+        </div>
+    </nav>
+
+    <br>
+    <br>
+
+    <!-- Main -->
+    <div class="flex-grow container mx-auto mt-10 px-4 sm:px-0">
+        <div class="max-w-3xl mx-auto card-container flex flex-col">
+
+            <!-- Introduction section -->
+            <div class="intro-section text-center">
+                <h2>Welcome to the AI Blog Generator</h2>
+                <p>
+                    Generate high-quality blog articles from YouTube videos using artificial intelligence.
+                    Simply enter the link to the YouTube video below and let the AI create the content for you!
+                </p>
+            </div>
+
+            <br>
+
+            <!-- Youtube section -->
+            <div class="input-section">
+                <h2>Enter Youtube Video Link</h2>
+                <div class="input-wrapper">
+                    <input 
+                        id="youtubeLink" 
+                        type="url" 
+                        placeholder="Paste Youtube Link..."
+                    >
+                    <button id="generateBlogButton" type="button">Generate</button>
+                </div>
+            </div>
+
+            <!-- section for loading circle -->
+            <div style="display: none;" id="loading-circle" class="load"></div>
+
+            <!-- Generated Blog Display Section -->
+            <section class="blog-section flex-grow">
+                <h2>Generated Blog Article</h2>
+                <div id="blogContent" class="mt-2">
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center p-4 mt-6">
+        Powered by <a href="https://www.youtube.com/codewithtomi">Code With Tomi</a>
+    </footer>
+
+    <script>
+        document.getElementById('generateBlogButton').addEventListener('click', async () => {
+            const youtubeLink = document.getElementById('youtubeLink').value;
+            const blogContent = document.getElementById('blogContent');
+            
+            if (youtubeLink) {
+                document.getElementById('loading-circle').style.display = 'block';
+                blogContent.innerHTML = ''; // Clear previous content
+
+                const endpointUrl = '/generate-blog';
+
+                try {
+                    const response = await fetch(endpointUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ link: youtubeLink })
+                    });
+
+                    const data = await response.json();
+                    blogContent.innerHTML = data.content;
+                    
+                    // Add time taken display
+                    if (data.time_taken) {
+                        const timeDisplay = document.createElement('div');
+                        timeDisplay.style.cssText = `
+                            margin-top: 2rem;
+                            padding: 1rem;
+                            background: rgba(102, 126, 234, 0.1);
+                            border: 2px solid #667eea;
+                            border-radius: 8px;
+                            text-align: center;
+                            color: #667eea;
+                            font-weight: 600;
+                        `;
+                        timeDisplay.innerHTML = `⏱️ Generated in <strong>${data.time_taken} seconds</strong>`;
+                        blogContent.appendChild(timeDisplay);
+                    }
+
+                } catch (error) {
+                    console.error("Error occurred:", error);
+                    alert("Something went wrong. Please try again later.");
+                }
+                
+                document.getElementById('loading-circle').style.display = 'none';
+            } else {
+                alert("Please enter a YouTube link.");
+            }
+        });
+    </script>
+</body>
+</html>

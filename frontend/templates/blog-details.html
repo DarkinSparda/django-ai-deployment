@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        nav {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        nav h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav a {
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .main-container {
+            flex-grow: 1;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header Section */
+        .header-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .header-section h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Blog Details Content */
+        .blog-details {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .blog-details h3 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .blog-details p {
+            color: #4b5563;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        /* Info Section */
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .info-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #764ba2;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .info-box h4 {
+            color: #764ba2;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box p {
+            color: #4b5563;
+            margin: 0;
+            word-break: break-all;
+            font-size: 0.95rem;
+        }
+
+        .info-box a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            word-break: break-all;
+        }
+
+        .info-box a:hover {
+            color: #764ba2;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f7fafc;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.1);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #764ba2;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .card-container {
+                padding: 1.5rem;
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            nav h1 {
+                font-size: 1.3rem;
+            }
+
+            nav div:last-child {
+                align-self: flex-end;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Navbar -->
+    <nav class="p-6 flex justify-between items-center">
+        <div>
+            <h1><i class="fas fa-brain"></i> AI Blog Generator</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <span class="text-white font-medium">Welcome, {{ user.username }}</span>
+            <a href="/blog-list" class="text-white hover:underline font-medium">
+                <i class="fas fa-list"></i> My Posts
+            </a>
+            <a href="#" class="text-white hover:underline font-medium">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="card-container">
+            <!-- Header Section -->
+            <section class="header-section">
+                <h2><i class="fas fa-file-alt"></i> Blog Post Details</h2>
+            </section>
+
+            <!-- Blog Details -->
+            <section class="blog-details">
+                <h3>{{ blog_article_detail.youtube_title }}</h3>
+                <p>{{ blog_article_detail.generated_content }}</p>
+            </section>
+
+            <!-- Info Boxes -->
+            <section class="info-section">
+                <div class="info-box">
+                    <h4>
+                        <i class="fas fa-video"></i>
+                        YouTube Title
+                    </h4>
+                    <p>{{ blog_article_detail.youtube_title }}</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>
+                        <i class="fab fa-youtube"></i>
+                        Video Link
+                    </h4>
+                    <a href="{{ blog_article_detail.youtube_link }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-external-link-alt"></i>
+                        Watch on YouTube
+                    </a>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="action-buttons">
+                <a href="/" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Generator
+                </a>
+                <a href="/blog-list" class="btn btn-primary">
+                    <i class="fas fa-list"></i>
+                    View All Posts
+                </a>
+            </section>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>✨ Powered by <strong>AI Blog Generator</strong> | Created with <i class="fas fa-heart" style="color: #f56565;"></i></p>
+    </footer>
+</body>
+</html>
