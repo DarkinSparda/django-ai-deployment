@@ -43,8 +43,16 @@ spec:
       value: "False"
     - name: ALLOWED_HOSTS
       value: ".northflank.app"
-    - name: DATABASE_URL
-      value: ${addon.postgres-db.connectionString}
+    - name: POSTGRES_DB
+      value: ${addon.postgres-db.database}
+    - name: POSTGRES_USER
+      value: ${addon.postgres-db.username}
+    - name: POSTGRES_PASSWORD
+      value: ${addon.postgres-db.password}
+    - name: POSTGRES_HOST
+      value: ${addon.postgres-db.host}
+    - name: POSTGRES_PORT
+      value: ${addon.postgres-db.port}
     - name: SECRET_KEY
       value: ${secret.DJANGO_SECRET_KEY}
     - name: GEMINI_API_KEY
