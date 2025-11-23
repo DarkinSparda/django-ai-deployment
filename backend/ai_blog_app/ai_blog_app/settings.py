@@ -104,11 +104,11 @@ WSGI_APPLICATION = 'ai_blog_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Simple PostgreSQL configuration
+# PostgreSQL configuration (works with local, Docker, and cloud databases)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'ai_blog_db'),
+        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
         'USER': os.getenv('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres123'),
         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
@@ -116,6 +116,7 @@ DATABASES = {
         'CONN_MAX_AGE': 600,
         'OPTIONS': {
             'connect_timeout': 10,
+            'sslmode': os.getenv('PGSSLMODE', 'prefer'),  # Support SSL for cloud databases
         }
     }
 }

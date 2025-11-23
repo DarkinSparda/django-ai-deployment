@@ -1,25 +1,8 @@
 # Docker Compose file - defines multiple services that work together
-# This is like a conductor that orchestrates your app and database
+# Using Supabase for database (no local PostgreSQL container)
 
 
 services:
-  # Database service
-  db:
-    image: postgres:16-alpine  # Use PostgreSQL 16 (lightweight Alpine version)
-    volumes:
-      - postgres_data:/var/lib/postgresql/data  # Persist database data
-    environment:
-      - POSTGRES_DB=ai_blog_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres123
-    ports:
-      - "5432:5432"  # Expose PostgreSQL port
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # Django web application service
   web:
     build:
@@ -37,15 +20,15 @@ services:
       - "8000:8000"  # Map host port 8000 to container port 8000
     environment:
       - DEBUG=True
-      - SECRET_KEY=django-insecure-5#t=xauv*+t4ll=kl5l4l+uoo1!adb=r7$$b-yii&tnr+7q@_y5
-      - DATABASE_URL=postgresql://postgres:postgres123@db:5432/ai_blog_db
+      - SECRET_KEY=${SECRET_KEY}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - ASSEMBLY_AI_API=${ASSEMBLY_AI_API}
-    depends_on:
-      db:
-        condition: service_healthy  # Wait for database to be ready
 
 # Named volumes for data persistence
 volumes:
-  postgres_data:  # PostgreSQL data
   media_files:    # User uploaded files
