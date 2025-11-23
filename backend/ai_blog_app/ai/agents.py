@@ -32,3 +32,4 @@ def get_blogs_agent():
     )
 
     return agent
+

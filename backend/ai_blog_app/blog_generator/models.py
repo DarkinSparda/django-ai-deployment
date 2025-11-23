@@ -9,6 +9,10 @@ class BlogPost(models.Model):
     youtube_link = models.URLField()
     transcript = models.TextField()
     generated_content = models.TextField()
+    model_used = models.CharField(null=True, blank=True, max_length=100)
+
+    time_to_generate = models.FloatField(null=True, blank=True, help_text="Time in seconds")
+    time_to_summarize = models.FloatField(null=True, blank=True, help_text="Time in seconds")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

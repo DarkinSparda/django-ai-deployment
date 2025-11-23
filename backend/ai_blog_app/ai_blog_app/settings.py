@@ -103,19 +103,27 @@ WSGI_APPLICATION = 'ai_blog_app.wsgi.application'
 # Load environment variables from .env file
 load_dotenv(BASE_DIR.parent.parent / '.env')
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('PGDATABASE'),
+#         'USER': os.getenv('PGUSER'),
+#         'PASSWORD': os.getenv('PGPASSWORD'),
+#         'HOST': os.getenv('PGHOST'),
+#         'PORT': '5432',
+#         'OPTIONS': {
+#             'sslmode': os.getenv('PGSSLMODE'),
+#         },
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('PGDATABASE'),
-        'USER': os.getenv('PGUSER'),
-        'PASSWORD': os.getenv('PGPASSWORD'),
-        'HOST': os.getenv('PGHOST'),
-        'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': os.getenv('PGSSLMODE'),
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 # Password validation

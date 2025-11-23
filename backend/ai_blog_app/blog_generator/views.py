@@ -14,7 +14,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 
-from .youtube import yt_title, get_transcription
+from .youtube import yt_title, get_transcription, get_transcription_whisper
 from ai.blog_generator import generate_blog_from_transcript
 # Create your views here.
 
@@ -39,18 +39,22 @@ def generate_blog(request):
             return JsonResponse({'error': f"Invalid data sent: {str(e)}"}, status=400)
         
 
-        start = time.time()
+        start = time.time() #
         title = yt_title(yt_link)
         transcription = get_transcription(yt_link)
-        
+        time_to_get_text = time.time() - start #
+        print("GOT TRANSCRIPTION")
         if not transcription:
             return JsonResponse({"error": "Failed to get transcript"}, status=500)
         try:
-            blog_content = generate_blog_from_transcript(transcription)
+            generation_result = generate_blog_from_transcript(transcription)
+            print("GOT GENERATED RESULTS")
+            blog_content = generation_result['generated_text']
+            blog_model = generation_result['model']
         except:
             return JsonResponse({"error": "Failed to get transcript"}, status=500)
         
-        time_taken_to_generate = time.time()
+        time_to_get_summary = time.time() - start - time_to_get_text
 
         blog_obj = BlogPost.objects.create(
             user=request.user,
@@ -58,14 +62,15 @@ def generate_blog(request):
             youtube_link=yt_link,
             transcript=transcription,
             generated_content=blog_content,
+            model_used=blog_model,
+            time_to_generate=round(time_to_get_text, 3),
+            time_to_summarize=round(time_to_get_summary, 3),
         )
         blog_obj.save()
 
-        time_taken_to_save = time.time()
-        calculated_time_taken_to_save = time_taken_to_save - time_taken_to_generate
-        print("to save object it took: ", round(calculated_time_taken_to_save, 3))
+        print("to save object it took: ", round(time_to_get_summary, 3))
 
-        return JsonResponse({'title': title,'content': blog_content, 'time_taken': round(time_taken_to_generate, 3)})
+        return JsonResponse({'title': title,'content': blog_content, 'time_taken': round(time_to_get_summary, 3)})
     else:
         return JsonResponse({'error': "Invalid request method"}, status=405)
 
