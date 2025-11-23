@@ -62,8 +62,8 @@ htmlcov/
 # Whisper models cache
 ~/.cache/whisper/
 
-# Large media files (optional - uncomment if needed)
-# *.mp3
-# *.mp4
-# *.wav
-# *.avi
+# Large media files 
+*.mp3
+*.mp4
+*.wav
+*.avi
