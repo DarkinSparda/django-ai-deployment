@@ -1,10 +1,16 @@
 Django
 djangorestframework
 djangorestframework-simplejwt
-dotenv
+python-dotenv
 psycopg2-binary
 pytube
+pytubefix
 assemblyai
 langchain
 langchain-google-genai
 nest_asyncio
+gunicorn
+whitenoise
+drf-spectacular
+dj-database-url
+whisper

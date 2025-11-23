@@ -1,0 +1,60 @@
+# Northflank configuration file
+# This makes deployment easier by pre-configuring your services
+
+apiVersion: v1
+kind: Project
+metadata:
+  name: ai-blog-app
+spec:
+  name: AI Blog App
+  description: Django AI Blog Generator with PostgreSQL
+
+---
+apiVersion: v1
+kind: Addon
+metadata:
+  name: postgres-db
+spec:
+  type: postgres
+  version: "16"
+  name: ai-blog-db
+  plan: nf-compute-20
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-api
+spec:
+  name: Django API
+  deployment:
+    instances: 1
+    docker:
+      buildEngine: kaniko
+      buildContext: /
+      dockerfilePath: /Dockerfile
+  ports:
+    - name: http
+      internalPort: 8000
+      protocol: HTTP
+      public: true
+  env:
+    - name: DEBUG
+      value: "False"
+    - name: ALLOWED_HOSTS
+      value: ".northflank.app"
+    - name: DATABASE_URL
+      value: ${addon.postgres-db.connectionString}
+    - name: SECRET_KEY
+      value: ${secret.DJANGO_SECRET_KEY}
+    - name: GEMINI_API_KEY
+      value: ${secret.GEMINI_API_KEY}
+    - name: ASSEMBLY_AI_API
+      value: ${secret.ASSEMBLY_AI_API}
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 1Gi

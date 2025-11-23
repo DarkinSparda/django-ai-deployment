@@ -1,0 +1,56 @@
+# Docker ignore file - tells Docker which files NOT to copy into the image
+# This keeps the image small and secure
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+backend/.venv/
+backend/venv/
+
+# Database files (we'll use PostgreSQL, not SQLite)
+*.sqlite3
+*.db
+
+# Environment files (secrets should come from Northflank)
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/
+
+# Media files (these should be in cloud storage or volumes)
+media/
+
+# Static files (will be collected during build)
+staticfiles/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
