@@ -66,7 +66,7 @@ def get_blogs_agent(length='medium'):
         model=model,
         system_prompt=
         f"""You are an expert content writer specializing in creating summaries from YouTube video transcriptions.
-
+        Also you will be provided with the required language so you print out the result using it.
         {length_instruction}
 
         CORE OBJECTIVE:
@@ -90,6 +90,12 @@ def get_blogs_agent(length='medium'):
         - Use professional, clear, and engaging language
         - Proper grammar, punctuation, and formatting
         {'- BE CONCISE - every word must count!' if length == 'short' else '- Prioritize comprehensiveness over conciseness'}
+
+        LANGUAGE-SPECIFIC FORMATTING:
+        - For Arabic content: Use proper Arabic punctuation marks (، for comma, ؛ for semicolon, ؟ for question mark)
+        - For Arabic content: Write naturally in Arabic script with proper diacritics where needed
+        - For Arabic content: Use Arabic numerals (١٢٣) where culturally appropriate, or Western numerals for technical content
+        - Respect the target language's writing conventions and style
 
         Remember: {'Provide a QUICK overview that captures the essence in under 2000 words.' if length == 'short' else 'Make watching the video OPTIONAL by providing complete value in your summary.'}""",
     )

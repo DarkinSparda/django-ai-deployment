@@ -46,7 +46,7 @@ def generate_blog(request):
         try:
             start = time.time()
             title = yt_title(yt_link)
-            transcription = get_transcription(yt_link)
+            transcription, lang_code = get_transcription(yt_link)
             time_to_get_text = time.time() - start
             print("GOT TRANSCRIPTION")
 
@@ -54,7 +54,7 @@ def generate_blog(request):
                 return JsonResponse({"error": "Failed to get transcript from YouTube video"}, status=500)
 
             print(f"Generating blog with length: {summary_length}")
-            generation_result = generate_blog_from_transcript(transcription, length=summary_length)
+            generation_result = generate_blog_from_transcript(transcription, lang_code=lang_code,length=summary_length)
             print("GOT GENERATED RESULTS")
             blog_content = generation_result['generated_text']
             blog_model = generation_result['model']
@@ -66,7 +66,6 @@ def generate_blog(request):
             return JsonResponse({"error": f"Failed to generate blog: {str(e)}"}, status=500)
 
         time_to_get_summary = time.time() - start - time_to_get_text
-
         blog_obj = BlogPost.objects.create(
             user=request.user,
             youtube_title=title,
@@ -74,14 +73,21 @@ def generate_blog(request):
             transcript=transcription,
             generated_content=blog_content,
             model_used=blog_model,
+            video_lang=lang_code,
             time_to_generate=round(time_to_get_text, 3),
             time_to_summarize=round(time_to_get_summary, 3),
+            article_size=summary_length,
         )
         blog_obj.save()
 
         print("to save object it took: ", round(time_to_get_summary, 3))
 
-        return JsonResponse({'title': title,'content': blog_content, 'time_taken': round(time_to_get_summary+time_to_get_text, 3)})
+        return JsonResponse({
+            'title': title,
+            'content': blog_content,
+            'time_taken': round(time_to_get_summary+time_to_get_text, 3),
+            'lang_code': lang_code
+        })
     else:
         return JsonResponse({'error': "Invalid request method"}, status=405)
 
@@ -128,7 +134,23 @@ def user_signup(request):
 
     return render(request, 'signup.html')
 
-@login_required
+@login_required(login_url='login')
 def user_logout(request):
     logout(request)
     return redirect('/')
+
+@login_required(login_url='login')
+def blog_list(request):
+    blogs = BlogPost.objects.filter(user=request.user)
+    return render(request, 'all-blogs.html', {'blog_articles': blogs})
+
+@login_required(login_url='login')
+def blog_details(request, id):
+    try:
+        blog = BlogPost.objects.get(id=id)
+        if request.user == blog.user:
+            return render(request, 'blog-details.html', {'blog_article_detail': blog})
+        else:
+            return redirect('/')
+    except BlogPost.DoesNotExist:
+        return redirect('/')

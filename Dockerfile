@@ -14,9 +14,10 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # STEP 4: Install system dependencies
-# Update package list and install PostgreSQL client library
+# Update package list and install PostgreSQL client library and FFmpeg
 RUN apt-get update && apt-get install -y \
     postgresql-client \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # STEP 5: Copy requirements first (for Docker layer caching)

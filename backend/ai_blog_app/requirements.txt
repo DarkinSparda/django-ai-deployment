@@ -12,5 +12,4 @@ nest_asyncio
 gunicorn
 whitenoise
 drf-spectacular
-celery
-redis
+yt-dlp
