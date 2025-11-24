@@ -66,7 +66,8 @@ def download_audio(link):
         "nocheckcertificate": True,
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "web"],
+                "player_client": ["ios", "tv_embedded", "mediaconnect"],
+                "player_skip": ["web", "android"],
             }
         },
         "outtmpl": os.path.join(temp_dir, "%(id)s.%(ext)s"),
@@ -127,7 +128,8 @@ def yt_title(link):
         "nocheckcertificate": True,
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "web"],
+                "player_client": ["ios", "tv_embedded", "mediaconnect"],
+                "player_skip": ["web", "android"],
             }
         },
         "http_headers": {
