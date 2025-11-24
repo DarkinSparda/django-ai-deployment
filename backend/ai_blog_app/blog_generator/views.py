@@ -22,37 +22,42 @@ from ai.blog_generator import generate_blog_from_transcript
 def index(request):
     return render(request, 'index.html')
 
-@csrf_exempt
 def generate_blog(request):
     # Accepts POST methods only
     if request.method == 'POST':
-        
+
         try:
             data = json.loads(request.body)
             yt_link = data.get('link')
-            
+
             if not yt_link:
                 return JsonResponse({'error': "Missing 'link' field in request"}, status=400)
-                
+
         except Exception as e:
             print(f"Error parsing request: {e}")
             return JsonResponse({'error': f"Invalid data sent: {str(e)}"}, status=400)
-        
 
-        start = time.time() #
-        title = yt_title(yt_link)
-        transcription = get_transcription(yt_link)
-        time_to_get_text = time.time() - start #
-        print("GOT TRANSCRIPTION")
-        if not transcription:
-            return JsonResponse({"error": "Failed to get transcript"}, status=500)
+
         try:
+            start = time.time()
+            title = yt_title(yt_link)
+            transcription = get_transcription(yt_link)
+            time_to_get_text = time.time() - start
+            print("GOT TRANSCRIPTION")
+
+            if not transcription:
+                return JsonResponse({"error": "Failed to get transcript from YouTube video"}, status=500)
+
             generation_result = generate_blog_from_transcript(transcription)
             print("GOT GENERATED RESULTS")
             blog_content = generation_result['generated_text']
             blog_model = generation_result['model']
-        except:
-            return JsonResponse({"error": "Failed to get transcript"}, status=500)
+
+        except Exception as e:
+            print(f"Error during blog generation: {e}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({"error": f"Failed to generate blog: {str(e)}"}, status=500)
         
         time_to_get_summary = time.time() - start - time_to_get_text
 

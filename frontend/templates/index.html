@@ -311,14 +311,12 @@
                 blogContent.innerHTML = ''; // Clear previous content
 
                 const endpointUrl = '/generate-blog';
-                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
                 try {
                     const response = await fetch(endpointUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': csrftoken,
                         },
                         body: JSON.stringify({ link: youtubeLink })
                     });
