@@ -324,6 +324,12 @@
                     });
 
                     const data = await response.json();
+
+                    // Check for errors in response
+                    if (!response.ok || data.error) {
+                        throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
+                    }
+
                     blogContent.innerHTML = data.content;
                     
                     // Add time taken display
@@ -345,7 +351,10 @@
 
                 } catch (error) {
                     console.error("Error occurred:", error);
-                    alert("Something went wrong. Please try again later.");
+                    blogContent.innerHTML = `<div style="color: red; padding: 1rem; background: #ffebee; border-radius: 8px;">
+                        <strong>Error:</strong> ${error.message || 'Something went wrong. Please try again later.'}
+                        <br><small>Check browser console for details.</small>
+                    </div>`;
                 }
                 
                 document.getElementById('loading-circle').style.display = 'none';
