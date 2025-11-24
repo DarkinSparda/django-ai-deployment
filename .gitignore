@@ -67,3 +67,7 @@ htmlcov/
 *.mp4
 *.wav
 *.avi
+
+# Testing scripts
+testing_pytube.ipynb
+testing_clients.py

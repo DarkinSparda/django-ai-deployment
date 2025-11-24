@@ -13,8 +13,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-
-from .youtube import yt_title, get_transcription, get_transcription_whisper
+from .youtube import yt_title, get_transcription
 from ai.blog_generator import generate_blog_from_transcript
 # Create your views here.
 
@@ -30,9 +29,14 @@ def generate_blog(request):
         try:
             data = json.loads(request.body)
             yt_link = data.get('link')
+            summary_length = data.get('length', 'medium')  # Default to medium if not provided
 
             if not yt_link:
                 return JsonResponse({'error': "Missing 'link' field in request"}, status=400)
+
+            # Validate length parameter
+            if summary_length not in ['short', 'medium', 'long']:
+                summary_length = 'medium'
 
         except Exception as e:
             print(f"Error parsing request: {e}")
@@ -49,7 +53,8 @@ def generate_blog(request):
             if not transcription:
                 return JsonResponse({"error": "Failed to get transcript from YouTube video"}, status=500)
 
-            generation_result = generate_blog_from_transcript(transcription)
+            print(f"Generating blog with length: {summary_length}")
+            generation_result = generate_blog_from_transcript(transcription, length=summary_length)
             print("GOT GENERATED RESULTS")
             blog_content = generation_result['generated_text']
             blog_model = generation_result['model']
@@ -59,7 +64,7 @@ def generate_blog(request):
             import traceback
             traceback.print_exc()
             return JsonResponse({"error": f"Failed to generate blog: {str(e)}"}, status=500)
-        
+
         time_to_get_summary = time.time() - start - time_to_get_text
 
         blog_obj = BlogPost.objects.create(
@@ -76,7 +81,7 @@ def generate_blog(request):
 
         print("to save object it took: ", round(time_to_get_summary, 3))
 
-        return JsonResponse({'title': title,'content': blog_content, 'time_taken': round(time_to_get_summary, 3)})
+        return JsonResponse({'title': title,'content': blog_content, 'time_taken': round(time_to_get_summary+time_to_get_text, 3)})
     else:
         return JsonResponse({'error': "Invalid request method"}, status=405)
 

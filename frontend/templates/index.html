@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Blog Generator</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>AI Blog Generator - Digital Government Authority</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -16,73 +17,89 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2b2467 0%, #3d348b 50%, #5e3db3 100%);
             min-height: 100vh;
+            color: white;
         }
 
         /* Navbar Styles */
         nav {
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid rgba(93, 211, 205, 0.2);
         }
 
         nav h1 {
             font-size: 1.8rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #5dd3cd 0%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         nav a {
             transition: all 0.3s ease;
             font-weight: 500;
             font-size: 0.95rem;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #5dd3cd;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
         }
 
         nav a:hover {
-            color: #667eea;
-            transform: translateY(-2px);
+            color: #5dd3cd;
         }
 
         /* Loading Circle */
         @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .load {
             width: 80px;
             height: 80px;
             margin: 2rem auto;
-            border: 4px solid #e2e8f0;
-            border-top: 4px solid #667eea;
+            border: 4px solid rgba(93, 211, 205, 0.2);
+            border-top: 4px solid #5dd3cd;
             border-radius: 50%;
             animation: rotate 1s linear infinite;
         }
 
-        #loading-circle {
-            display: none;
-        }
-
         /* Main Container */
         .card-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
             padding: 3rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 900px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(93, 211, 205, 0.1);
+            max-width: 1100px;
             width: 100%;
+            margin: 0 auto;
         }
 
         /* Introduction Section */
         .intro-section h2 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5dd3cd 0%, #ffffff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -90,138 +107,367 @@
         }
 
         .intro-section p {
-            color: #4b5563;
-            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.1rem;
             line-height: 1.8;
         }
 
         /* Input Section */
-        .input-section {
-            margin: 2.5rem 0;
-        }
-
         .input-section h2 {
-            color: #2d3748;
-            font-size: 1.3rem;
+            color: #5dd3cd;
+            font-size: 1.4rem;
             font-weight: 700;
             margin-bottom: 1rem;
         }
 
         .input-wrapper {
             display: flex;
-            gap: 0.5rem;
-            border-radius: 12px;
+            gap: 0.75rem;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.5rem;
+            border: 1px solid rgba(93, 211, 205, 0.2);
         }
 
         #youtubeLink {
             flex-grow: 1;
-            padding: 0.9rem 1.2rem;
+            padding: 1rem 1.5rem;
             border: none;
             font-size: 1rem;
-            background: #f7fafc;
-            color: #2d3748;
-            transition: background 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
 
         #youtubeLink:focus {
             outline: none;
-            background: #edf2f7;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(93, 211, 205, 0.3);
         }
 
         #youtubeLink::placeholder {
-            color: #a0aec0;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Summary Length Selector */
+        .length-selector {
+            margin: 1.5rem 0;
+        }
+
+        .length-selector h3 {
+            color: #5dd3cd;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .length-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .length-option {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .length-option input[type="radio"] {
+            display: none;
+        }
+
+        .length-option label {
+            display: block;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(93, 211, 205, 0.2);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .length-option label:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(93, 211, 205, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .length-option input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #5dd3cd 0%, #4ec3c8 100%);
+            border-color: #5dd3cd;
+            color: #2b2467;
+            box-shadow: 0 4px 15px rgba(93, 211, 205, 0.4);
+        }
+
+        .length-description {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
         }
 
         #generateBlogButton {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 0.9rem 2rem;
+            background: linear-gradient(135deg, #5dd3cd 0%, #4ec3c8 100%);
+            color: #2b2467;
+            padding: 1rem 2.5rem;
             border: none;
+            border-radius: 12px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: 1.05rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
             white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(93, 211, 205, 0.3);
         }
 
         #generateBlogButton:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(93, 211, 205, 0.5);
         }
 
         #generateBlogButton:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
 
         /* Blog Content Section */
-        .blog-section {
-            margin-top: 3rem;
-        }
-
         .blog-section h2 {
-            color: #2d3748;
-            font-size: 1.3rem;
+            color: #5dd3cd;
+            font-size: 1.4rem;
             font-weight: 700;
             margin-bottom: 1.5rem;
         }
 
         #blogContent {
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            padding: 2rem;
-            border-radius: 12px;
-            border-left: 5px solid #667eea;
-            line-height: 1.8;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(93, 211, 205, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            line-height: 1.9;
             color: #2d3748;
             min-height: 100px;
-            space-y: 1rem;
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards;
         }
 
-        #blogContent h1, #blogContent h2, #blogContent h3 {
-            color: #667eea;
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Typography Styles for Blog Content */
+        #blogContent h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3d348b 0%, #5e3db3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        #blogContent h1:first-child {
+            margin-top: 0;
+        }
+
+        #blogContent h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #3d348b;
+            margin-top: 2.5rem;
+            margin-bottom: 0.875rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #5dd3cd;
+            line-height: 1.3;
+        }
+
+        #blogContent h3 {
+            font-size: 1.375rem;
+            font-weight: 600;
+            color: #5e3db3;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        #blogContent h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #5e3db3;
             margin-top: 1.5rem;
             margin-bottom: 0.5rem;
-            font-weight: 700;
         }
 
         #blogContent p {
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            font-size: 1.0625rem;
+            color: #374151;
+            line-height: 1.85;
+        }
+
+        #blogContent strong {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        #blogContent em {
+            font-style: italic;
+            color: #4b5563;
+        }
+
+        #blogContent ul, #blogContent ol {
+            margin: 1.25rem 0;
+            padding-left: 2rem;
+        }
+
+        #blogContent li {
+            margin-bottom: 0.75rem;
+            color: #374151;
+            line-height: 1.75;
+        }
+
+        #blogContent li::marker {
+            color: #5dd3cd;
+            font-weight: 600;
+        }
+
+        #blogContent code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #be185d;
+            border: 1px solid #e2e8f0;
+        }
+
+        #blogContent pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        #blogContent pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: inherit;
+        }
+
+        #blogContent blockquote {
+            border-left: 4px solid #5dd3cd;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            background: #f8fafc;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+        }
+
+        #blogContent a {
+            color: #3d348b;
+            text-decoration: underline;
+            text-decoration-color: rgba(61, 52, 139, 0.3);
+            text-underline-offset: 3px;
+            transition: all 0.2s ease;
+        }
+
+        #blogContent a:hover {
+            color: #5dd3cd;
+        }
+
+        #blogContent hr {
+            border: none;
+            border-top: 2px solid #e2e8f0;
+            margin: 2.5rem 0;
+        }
+
+        #blogContent table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #blogContent th {
+            background: linear-gradient(135deg, #3d348b 0%, #5e3db3 100%);
+            color: white;
+            padding: 0.875rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        #blogContent td {
+            padding: 0.875rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        #blogContent tr:hover {
+            background: #f8fafc;
+        }
+
+        .time-display {
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(93, 211, 205, 0.1) 0%, rgba(78, 195, 200, 0.1) 100%);
+            border: 2px solid #5dd3cd;
+            border-radius: 12px;
+            text-align: center;
+            color: #3d348b;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .error-display {
+            color: #dc2626;
+            padding: 1.5rem;
+            background: #fee2e2;
+            border-radius: 12px;
+            border-left: 4px solid #dc2626;
         }
 
         /* Footer */
         footer {
-            background: rgba(0, 0, 0, 0.1);
-            color: white;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            color: rgba(255, 255, 255, 0.9);
             text-align: center;
             padding: 1.5rem;
             font-size: 0.95rem;
-            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(93, 211, 205, 0.2);
         }
 
         footer a {
-            color: #667eea;
+            color: #5dd3cd;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s ease;
         }
 
         footer a:hover {
-            color: #764ba2;
+            color: #ffffff;
         }
 
         /* Responsive */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             .card-container {
-                padding: 1.5rem;
+                padding: 2rem;
             }
 
             .intro-section h2 {
-                font-size: 1.5rem;
+                font-size: 2rem;
             }
 
             nav h1 {
@@ -235,6 +481,18 @@
             #generateBlogButton {
                 width: 100%;
             }
+
+            .length-options {
+                flex-direction: column;
+            }
+
+            .length-option {
+                min-width: 100%;
+            }
+
+            #blogContent {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -242,55 +500,81 @@
     <!-- Navbar -->
     <nav class="p-6 flex justify-between items-center">
         <div>
-            <h1 class="text-white"><i class="fas fa-brain"></i> AI Blog Generator</h1>
+            <h1><i class="fas fa-microchip"></i> AI Blog Generator</h1>
         </div>
         <div class="flex items-center gap-6">
-            <a href="#" class="text-white hover:underline">Welcome {{ user.username }}</a>
-            <a href="/blog-list" class="text-white hover:underline">Saved Blog Posts</a>
-            <a href="#" class="text-white hover:underline">Logout</a>
+            <a href="#" class="text-white">Welcome {{ user.username }}</a>
+            <a href="/blog-list" class="text-white">Saved Blog Posts</a>
+            <a href="#" class="text-white">Logout</a>
         </div>
     </nav>
 
-    <br>
-    <br>
+    <!-- Main Content -->
+    <div class="flex-grow container mx-auto mt-10 px-4">
+        <div class="card-container flex flex-col">
 
-    <!-- Main -->
-    <div class="flex-grow container mx-auto mt-10 px-4 sm:px-0">
-        <div class="max-w-3xl mx-auto card-container flex flex-col">
-
-            <!-- Introduction section -->
+            <!-- Introduction -->
             <div class="intro-section text-center">
-                <h2>Welcome to the AI Blog Generator</h2>
+                <h2>AI-Powered YouTube to Blog</h2>
                 <p>
-                    Generate high-quality blog articles from YouTube videos using artificial intelligence.
-                    Simply enter the link to the YouTube video below and let the AI create the content for you!
+                    Transform any YouTube video into a comprehensive, well-structured blog article.
+                    Choose your preferred summary length and let our AI create professional content instantly.
                 </p>
             </div>
 
             <br>
 
-            <!-- Youtube section -->
+            <!-- YouTube Link Input -->
             <div class="input-section">
-                <h2>Enter Youtube Video Link</h2>
+                <h2><i class="fas fa-link"></i> YouTube Video Link</h2>
                 <div class="input-wrapper">
                     <input
                         id="youtubeLink"
                         type="url"
-                        placeholder="Paste Youtube Link..."
+                        placeholder="https://www.youtube.com/watch?v=..."
                     >
-                    <button id="generateBlogButton" type="button">Generate</button>
+                    <button id="generateBlogButton" type="button">
+                        <i class="fas fa-magic"></i> Generate Blog
+                    </button>
                 </div>
                 {% csrf_token %}
             </div>
 
-            <!-- section for loading circle -->
+            <!-- Summary Length Selector -->
+            <div class="length-selector">
+                <h3><i class="fas fa-sliders-h"></i> Summary Length</h3>
+                <div class="length-options">
+                    <div class="length-option">
+                        <input type="radio" id="length-short" name="summary-length" value="short">
+                        <label for="length-short">
+                            <div><i class="fas fa-bolt"></i> Short</div>
+                            <div class="length-description">Quick overview (1-2 min read)</div>
+                        </label>
+                    </div>
+                    <div class="length-option">
+                        <input type="radio" id="length-medium" name="summary-length" value="medium" checked>
+                        <label for="length-medium">
+                            <div><i class="fas fa-balance-scale"></i> Medium</div>
+                            <div class="length-description">Balanced details (3-5 min read)</div>
+                        </label>
+                    </div>
+                    <div class="length-option">
+                        <input type="radio" id="length-long" name="summary-length" value="long">
+                        <label for="length-long">
+                            <div><i class="fas fa-book-open"></i> Long</div>
+                            <div class="length-description">Comprehensive (5-10 min read)</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Animation -->
             <div style="display: none;" id="loading-circle" class="load"></div>
 
-            <!-- Generated Blog Display Section -->
+            <!-- Generated Blog -->
             <section class="blog-section flex-grow">
-                <h2>Generated Blog Article</h2>
-                <div id="blogContent" class="mt-2">
-                </div>
+                <h2><i class="fas fa-file-alt"></i> Generated Blog Article</h2>
+                <div id="blogContent"></div>
             </section>
 
         </div>
@@ -298,17 +582,18 @@
 
     <!-- Footer -->
     <footer class="text-center p-4 mt-6">
-        Powered by <a href="https://www.youtube.com/codewithtomi">Code With Tomi</a>
+        <p>Powered By <a href="#">Abdullah</a></p>
     </footer>
 
     <script>
         document.getElementById('generateBlogButton').addEventListener('click', async () => {
             const youtubeLink = document.getElementById('youtubeLink').value;
             const blogContent = document.getElementById('blogContent');
-            
+            const summaryLength = document.querySelector('input[name="summary-length"]:checked').value;
+
             if (youtubeLink) {
                 document.getElementById('loading-circle').style.display = 'block';
-                blogContent.innerHTML = ''; // Clear previous content
+                blogContent.innerHTML = '';
 
                 const endpointUrl = '/generate-blog';
 
@@ -318,46 +603,55 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ link: youtubeLink })
+                        body: JSON.stringify({
+                            link: youtubeLink,
+                            length: summaryLength
+                        })
                     });
 
                     const data = await response.json();
 
-                    // Check for errors in response
                     if (!response.ok || data.error) {
                         throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
                     }
 
-                    blogContent.innerHTML = data.content;
-                    
-                    // Add time taken display
-                    if (data.time_taken) {
-                        const timeDisplay = document.createElement('div');
-                        timeDisplay.style.cssText = `
-                            margin-top: 2rem;
-                            padding: 1rem;
-                            background: rgba(102, 126, 234, 0.1);
-                            border: 2px solid #667eea;
-                            border-radius: 8px;
-                            text-align: center;
-                            color: #667eea;
-                            font-weight: 600;
-                        `;
-                        timeDisplay.innerHTML = `⏱️ Generated in <strong>${data.time_taken} seconds</strong>`;
-                        blogContent.appendChild(timeDisplay);
-                    }
+                    // Parse markdown to HTML with fade-in animation
+                    const htmlContent = marked.parse(data.content);
+
+                    // Reset animation
+                    blogContent.style.animation = 'none';
+                    setTimeout(() => {
+                        blogContent.innerHTML = htmlContent;
+                        blogContent.style.animation = 'fadeIn 0.6s ease forwards';
+
+                        // Add time taken display
+                        if (data.time_taken) {
+                            const timeDisplay = document.createElement('div');
+                            timeDisplay.className = 'time-display';
+                            timeDisplay.innerHTML = `<i class="fas fa-clock"></i> Generated in <strong>${data.time_taken} seconds</strong>`;
+                            blogContent.appendChild(timeDisplay);
+                        }
+                    }, 10);
 
                 } catch (error) {
                     console.error("Error occurred:", error);
-                    blogContent.innerHTML = `<div style="color: red; padding: 1rem; background: #ffebee; border-radius: 8px;">
-                        <strong>Error:</strong> ${error.message || 'Something went wrong. Please try again later.'}
+                    blogContent.innerHTML = `<div class="error-display">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Error:</strong> ${error.message || 'Something went wrong. Please try again later.'}
                         <br><small>Check browser console for details.</small>
                     </div>`;
+                    blogContent.style.opacity = 1;
                 }
-                
+
                 document.getElementById('loading-circle').style.display = 'none';
             } else {
                 alert("Please enter a YouTube link.");
+            }
+        });
+
+        // Allow Enter key to trigger generation
+        document.getElementById('youtubeLink').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('generateBlogButton').click();
             }
         });
     </script>

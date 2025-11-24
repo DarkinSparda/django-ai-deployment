@@ -12,4 +12,5 @@ nest_asyncio
 gunicorn
 whitenoise
 drf-spectacular
-whisper
+celery
+redis
