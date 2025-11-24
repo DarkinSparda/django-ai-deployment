@@ -63,6 +63,12 @@ def download_audio(link):
         "sleep_interval": 1.0,
         "max_sleep_interval": 2.5,
         "concurrent_fragment_downloads": 1,
+        "nocheckcertificate": True,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "web"],
+            }
+        },
         "outtmpl": os.path.join(temp_dir, "%(id)s.%(ext)s"),
         "postprocessors": [
             {
@@ -115,10 +121,20 @@ def get_transcription(link, api_key=None):
 
 def yt_title(link):
     ydl_opts = {
-            'quiet': True,
-            'skip_download': True,
-            'noplaylist': True,
-        }
+        'quiet': True,
+        'skip_download': True,
+        'noplaylist': True,
+        "nocheckcertificate": True,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "web"],
+            }
+        },
+        "http_headers": {
+            "User-Agent": random.choice(USER_AGENTS),
+            "Accept-Language": "en-US,en;q=0.9",
+        },
+    }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(link, download=False)
         return info.get('title')
