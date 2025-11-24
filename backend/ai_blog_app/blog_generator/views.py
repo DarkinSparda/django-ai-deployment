@@ -22,6 +22,7 @@ from ai.blog_generator import generate_blog_from_transcript
 def index(request):
     return render(request, 'index.html')
 
+@csrf_exempt
 def generate_blog(request):
     # Accepts POST methods only
     if request.method == 'POST':
