@@ -5,12 +5,12 @@ import assemblyai as aai
 import whisper
 
 def yt_title(link):
-    yt = YouTube(link)
+    yt = YouTube(link, use_po_token=True,)
     title = yt.title
     return title
 
 def download_audio(link):
-    yt = YouTube(link)
+    yt = YouTube(link, use_po_token=True)
     video = yt.streams.filter(only_audio=True).first()
     out_file = video.download(output_path=settings.MEDIA_ROOT)
     base, ext = os.path.splitext(out_file)
