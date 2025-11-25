@@ -57,7 +57,15 @@ def download_audio(link):
     _, lang_code = get_youtube_metadata(link)
 
     # Get MP3 download URL from RapidAPI
-    download_url = get_mp3_url(link)
+    
+    
+    for retry in range(0, 5): # Sometimes api returns empty url
+        time.sleep(4.5)
+        download_url = get_mp3_url(link)
+        if download_url:
+            break
+            
+
 
     if not download_url:
         raise ValueError("Failed to get download URL from RapidAPI")
