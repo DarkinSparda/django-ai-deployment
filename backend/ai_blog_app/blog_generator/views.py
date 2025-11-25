@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from .youtube1 import yt_title, get_transcription
+from .youtube import yt_title, get_transcription
 from ai.blog_generator import generate_blog_from_transcript
 # Create your views here.
 
