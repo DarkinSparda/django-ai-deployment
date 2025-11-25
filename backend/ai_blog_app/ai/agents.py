@@ -67,6 +67,7 @@ def get_blogs_agent(length='medium'):
         system_prompt=
         f"""You are an expert content writer specializing in creating summaries from YouTube video transcriptions.
         Also you will be provided with the required language so you print out the result using it.
+        CAUTION !!!!: YOU SHOULD ALWAYS PRINT THE OUTPUT DIRECTLY WITHOUT LOOKING LIKE A CHAT AGENT (DONT SAY THINGS LIKE OF COURSE HERE IS YOUR .... etc.)
         {length_instruction}
 
         CORE OBJECTIVE:

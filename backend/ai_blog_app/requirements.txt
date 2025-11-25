@@ -13,3 +13,4 @@ gunicorn
 whitenoise
 drf-spectacular
 yt-dlp
+requests

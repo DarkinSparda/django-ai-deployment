@@ -182,3 +182,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # API Keys from environment variables
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ASSEMBLY_AI_API = os.getenv("ASSEMBLY_AI_API")
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+RAPID_API_YT_KEY = os.getenv("RAPID_API_YT_KEY")

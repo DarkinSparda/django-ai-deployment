@@ -71,3 +71,4 @@ htmlcov/
 # Testing scripts
 testing_pytube.ipynb
 testing_clients.py
+backend/ai_blog_app/blog_generator/youtube1.py

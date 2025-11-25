@@ -4,7 +4,7 @@ from .agents import get_blogs_agent
 from .llms import get_ai_model
 
 def generate_blog_from_transcript(transcription,lang_code, length='medium'):
-    prompt = f"Based on your required tasks. apply it here on this transcript using this language({lang_code}): {transcription}"
+    prompt = f"Based on your required tasks. apply it here on this transcript using this language({lang_code}): {transcription}. GIVE OUTPUT DIRECTLY WITHOUT thing like OF course here is bla bla bla:. be direct"
 
     blog_agent = get_blogs_agent(length=length)
     response = blog_agent.invoke(
