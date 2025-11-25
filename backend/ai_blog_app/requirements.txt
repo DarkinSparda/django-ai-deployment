@@ -14,4 +14,3 @@ whitenoise
 drf-spectacular
 yt-dlp
 requests
-threading
