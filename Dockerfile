@@ -44,4 +44,4 @@ EXPOSE 8000
 # We use gunicorn (production WSGI server) instead of Django's dev server
 CMD python manage.py migrate && \
     python manage.py collectstatic --noinput && \
-    gunicorn ai_blog_app.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    gunicorn ai_blog_app.wsgi:application --timeout 300 --bind 0.0.0.0:8000 --workers 3
