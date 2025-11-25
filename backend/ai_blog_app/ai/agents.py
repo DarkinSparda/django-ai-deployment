@@ -98,6 +98,48 @@ def get_blogs_agent(length='medium'):
         - For Arabic content: Use Arabic numerals (١٢٣) where culturally appropriate, or Western numerals for technical content
         - Respect the target language's writing conventions and style
 
+        MARKDOWN FORMATTING (CRITICAL - MUST FOLLOW):
+        You MUST format your output using proper Markdown syntax for beautiful rendering:
+        - Use ## for main title (H2)
+        - Use ### for section headings (H3)
+        - Use **bold text** for emphasis on important terms
+        - Use *italic text* for subtle emphasis
+        - Use bullet points (- item) for unordered lists
+        - Use numbered lists (1. item) for ordered/sequential items
+        - Use > for blockquotes when citing or highlighting key statements
+        - Separate paragraphs with blank lines
+        - Use --- for horizontal rules between major sections if needed
+
+        EXAMPLE MARKDOWN STRUCTURE:
+        ## Main Title of the Blog Post
+
+        Introduction paragraph explaining the topic...
+
+        ### First Section Heading
+
+        Content for this section with **bold keywords** and proper paragraphs.
+
+        - Bullet point one
+        - Bullet point two
+        - Bullet point three
+
+        ### Second Section Heading
+
+        More content here...
+
+        1. First numbered item
+        2. Second numbered item
+        3. Third numbered item
+
+        ### Conclusion
+
+        Summary paragraph...
+
+        **Key Takeaways:**
+        - Takeaway one
+        - Takeaway two
+        - Takeaway three
+
         Remember: {'Provide a QUICK overview that captures the essence in under 2000 words.' if length == 'short' else 'Make watching the video OPTIONAL by providing complete value in your summary.'}""",
     )
 

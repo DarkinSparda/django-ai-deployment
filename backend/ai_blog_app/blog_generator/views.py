@@ -7,6 +7,8 @@ from django.http import JsonResponse
 from .models import BlogPost
 import json
 import time
+import threading
+from uuid import uuid4
 
 # API functions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -15,11 +17,83 @@ from rest_framework.permissions import IsAuthenticated
 
 from .youtube import yt_title, get_transcription
 from ai.blog_generator import generate_blog_from_transcript
+
+# In-memory storage for tracking blog generation by UUID
+processing_blogs = {}  # {uuid: {'status': 'processing'|'completed'|'error', 'result': {...}}}
+
 # Create your views here.
 
 @login_required(login_url='login')
 def index(request):
     return render(request, 'index.html')
+
+def _generate_blog_background(blog_uuid, user_id, yt_link, summary_length):
+    """Generate blog content in a background thread"""
+    try:
+        from django.contrib.auth.models import User
+        user = User.objects.get(id=user_id)
+
+        start = time.time()
+        title = yt_title(yt_link)
+        transcription, lang_code = get_transcription(yt_link)
+        time_to_get_text = time.time() - start
+        print("GOT TRANSCRIPTION")
+
+        if not transcription:
+            print(f"Failed to get transcript for {yt_link}")
+            # Mark as error in memory
+            processing_blogs[blog_uuid] = {
+                'status': 'error',
+                'error': 'Failed to get transcript'
+            }
+            return
+
+        print(f"Generating blog with length: {summary_length}")
+        generation_result = generate_blog_from_transcript(transcription, lang_code=lang_code, length=summary_length)
+        print("GOT GENERATED RESULTS")
+        blog_content = generation_result['generated_text']
+        blog_model = generation_result['model']
+
+        time_to_get_summary = time.time() - start - time_to_get_text
+        
+        # Save to database
+        blog = BlogPost.objects.create(
+            user=user,
+            youtube_title=title,
+            youtube_link=yt_link,
+            transcript=transcription,
+            generated_content=blog_content,
+            model_used=blog_model,
+            video_lang=lang_code,
+            time_to_generate=round(time_to_get_text, 3),
+            time_to_summarize=round(time_to_get_summary, 3),
+            article_size=summary_length,
+        )
+        
+        # Store result in memory with UUID
+        processing_blogs[blog_uuid] = {
+            'status': 'completed',
+            'result': {
+                'id': blog.id,
+                'title': title,
+                'content': blog_content,
+                'lang_code': lang_code,
+                'time_taken': round(time_to_get_summary + time_to_get_text, 3),
+            }
+        }
+        
+        print(f"Blog generation completed for {yt_link}")
+    except Exception as e:
+        print(f"Error during background blog generation: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Store error in memory
+        processing_blogs[blog_uuid] = {
+            'status': 'error',
+            'error': str(e)
+        }
+
 
 @csrf_exempt
 def generate_blog(request):
@@ -41,52 +115,27 @@ def generate_blog(request):
         except Exception as e:
             print(f"Error parsing request: {e}")
             return JsonResponse({'error': f"Invalid data sent: {str(e)}"}, status=400)
-
-
-        try:
-            start = time.time()
-            title = yt_title(yt_link)
-            transcription, lang_code = get_transcription(yt_link)
-            time_to_get_text = time.time() - start
-            print("GOT TRANSCRIPTION")
-
-            if not transcription:
-                return JsonResponse({"error": "Failed to get transcript from YouTube video"}, status=500)
-
-            print(f"Generating blog with length: {summary_length}")
-            generation_result = generate_blog_from_transcript(transcription, lang_code=lang_code,length=summary_length)
-            print("GOT GENERATED RESULTS")
-            blog_content = generation_result['generated_text']
-            blog_model = generation_result['model']
-
-        except Exception as e:
-            print(f"Error during blog generation: {e}")
-            import traceback
-            traceback.print_exc()
-            return JsonResponse({"error": f"Failed to generate blog: {str(e)}"}, status=500)
-
-        time_to_get_summary = time.time() - start - time_to_get_text
-        blog_obj = BlogPost.objects.create(
-            user=request.user,
-            youtube_title=title,
-            youtube_link=yt_link,
-            transcript=transcription,
-            generated_content=blog_content,
-            model_used=blog_model,
-            video_lang=lang_code,
-            time_to_generate=round(time_to_get_text, 3),
-            time_to_summarize=round(time_to_get_summary, 3),
-            article_size=summary_length,
+        
+        blog_uuid = str(uuid4())
+        
+        # Initialize in memory as processing
+        processing_blogs[blog_uuid] = {
+            'status': 'processing',
+            'result': None
+        }
+        # Start blog generation in background thread
+        thread = threading.Thread(
+            target=_generate_blog_background,
+            args=(blog_uuid, request.user.id, yt_link, summary_length),
+            daemon=True
         )
-        blog_obj.save()
+        thread.start()
 
-        print("to save object it took: ", round(time_to_get_summary, 3))
-
+        # Return immediately with a loading state
         return JsonResponse({
-            'title': title,
-            'content': blog_content,
-            'time_taken': round(time_to_get_summary+time_to_get_text, 3),
-            'lang_code': lang_code
+            'message': 'Blog generation started. Please wait...',
+            'status': 'processing',
+            'blog_uuid': blog_uuid,
         })
     else:
         return JsonResponse({'error': "Invalid request method"}, status=405)
@@ -154,3 +203,35 @@ def blog_details(request, id):
             return redirect('/')
     except BlogPost.DoesNotExist:
         return redirect('/')
+
+
+@login_required(login_url='login')
+def get_blog_by_uuid(request, blog_uuid):
+    """Fetch blog status by UUID (used for polling)"""
+    for uuid, data in processing_blogs.items():
+        print(uuid, data['status'])
+    # Check if UUID exists in memory
+    if blog_uuid not in processing_blogs:
+        return JsonResponse({'error': 'Blog request not found'}, status=404)
+    
+    blog_data = processing_blogs[blog_uuid]
+    
+    # If still processing, return status
+    if blog_data['status'] == 'processing':
+        return JsonResponse({'status': 'processing'})
+    
+    # If error, return error
+    if blog_data['status'] == 'error':
+        error_msg = blog_data.get('error', 'Unknown error')
+        # Clean up from memory
+        processing_blogs.pop(blog_uuid, None)
+        return JsonResponse({'error': error_msg}, status=500)
+    
+    # If completed, return result
+    if blog_data['status'] == 'completed':
+        result = blog_data['result']
+        # Clean up from memory (no longer needed)
+        processing_blogs.pop(blog_uuid, None)
+        return JsonResponse(result)
+    
+    return JsonResponse({'error': 'Unknown status'}, status=500)

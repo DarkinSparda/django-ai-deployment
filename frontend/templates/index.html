@@ -623,6 +623,57 @@
     </footer>
 
     <script>
+        let pollInterval = null;
+
+        async function pollForBlog(blogContent, blog_uuid) {
+            try {
+                const response = await fetch(`/get-blog-by-uuid/${blog_uuid}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Blog is ready!
+                    if (data.content) {
+                        clearInterval(pollInterval);
+
+                        // Parse markdown to HTML with fade-in animation
+                        const htmlContent = marked.parse(data.content);
+
+                        // Detect language and apply RTL for Arabic
+                        const isArabic = data.lang_code && data.lang_code.startsWith('ar');
+
+                        // Reset animation
+                        blogContent.style.animation = 'none';
+                        setTimeout(() => {
+                            blogContent.innerHTML = htmlContent;
+                            blogContent.style.animation = 'fadeIn 0.6s ease forwards';
+
+                            // Apply RTL direction for Arabic
+                            if (isArabic) {
+                                blogContent.setAttribute('dir', 'rtl');
+                                blogContent.style.textAlign = 'right';
+                            } else {
+                                blogContent.setAttribute('dir', 'ltr');
+                                blogContent.style.textAlign = 'left';
+                            }
+
+                            // Add time taken display
+                            if (data.time_taken) {
+                                const timeDisplay = document.createElement('div');
+                                timeDisplay.className = 'time-display';
+                                timeDisplay.innerHTML = `<i class="fas fa-clock"></i> Generated in <strong>${data.time_taken} seconds</strong>`;
+                                blogContent.appendChild(timeDisplay);
+                            }
+                        }, 10);
+
+                        document.getElementById('loading-circle').style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error("Polling error:", error);
+            }
+        }
+
         document.getElementById('generateBlogButton').addEventListener('click', async () => {
             const youtubeLink = document.getElementById('youtubeLink').value;
             const blogContent = document.getElementById('blogContent');
@@ -630,7 +681,7 @@
 
             if (youtubeLink) {
                 document.getElementById('loading-circle').style.display = 'block';
-                blogContent.innerHTML = '';
+                blogContent.innerHTML = '<div class="error-display">Generating blog... This may take a few minutes. Please wait.</div>';
 
                 const endpointUrl = '/generate-blog';
 
@@ -648,39 +699,32 @@
 
                     const data = await response.json();
 
-                    if (!response.ok || data.error) {
+                    if (!response.ok) {
                         throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
                     }
 
-                    // Parse markdown to HTML with fade-in animation
-                    const htmlContent = marked.parse(data.content);
+                    if (data.status === 'processing') {
+                        // Blog generation started, now poll for results
+                        blogContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><div class="load"></div><p style="color: white; margin-top: 1rem;">Generating your blog...</p><small style="color: rgba(255,255,255,0.7);">This typically takes 1-2 minutes.</small></div>';
+                        
+                        // Poll every 3 seconds for up to 10 minutes
+                        let pollCount = 0;
+                        const maxPolls = 200; // 200 * 3 = 600 seconds = 10 minutes
 
-                    // Detect language and apply RTL for Arabic
-                    const isArabic = data.lang_code && data.lang_code.startsWith('ar');
+                        pollInterval = setInterval(async () => {
+                            pollCount++;
+                            if (pollCount > maxPolls) {
+                                clearInterval(pollInterval);
+                                blogContent.innerHTML = `<div class="error-display">
+                                    <strong><i class="fas fa-exclamation-triangle"></i> Timeout:</strong> Blog generation took too long. Please try again or check your blog list.
+                                </div>`;
+                                document.getElementById('loading-circle').style.display = 'none';
+                                return;
+                            }
 
-                    // Reset animation
-                    blogContent.style.animation = 'none';
-                    setTimeout(() => {
-                        blogContent.innerHTML = htmlContent;
-                        blogContent.style.animation = 'fadeIn 0.6s ease forwards';
-
-                        // Apply RTL direction for Arabic
-                        if (isArabic) {
-                            blogContent.setAttribute('dir', 'rtl');
-                            blogContent.style.textAlign = 'right';
-                        } else {
-                            blogContent.setAttribute('dir', 'ltr');
-                            blogContent.style.textAlign = 'left';
-                        }
-
-                        // Add time taken display
-                        if (data.time_taken) {
-                            const timeDisplay = document.createElement('div');
-                            timeDisplay.className = 'time-display';
-                            timeDisplay.innerHTML = `<i class="fas fa-clock"></i> Generated in <strong>${data.time_taken} seconds</strong>`;
-                            blogContent.appendChild(timeDisplay);
-                        }
-                    }, 10);
+                            await pollForBlog(blogContent, data.blog_uuid);
+                        }, 3000); // Poll every 3 seconds
+                    }
 
                 } catch (error) {
                     console.error("Error occurred:", error);
@@ -689,9 +733,8 @@
                         <br><small>Check browser console for details.</small>
                     </div>`;
                     blogContent.style.opacity = 1;
+                    document.getElementById('loading-circle').style.display = 'none';
                 }
-
-                document.getElementById('loading-circle').style.display = 'none';
             } else {
                 alert("Please enter a YouTube link.");
             }
