@@ -1,0 +1,16 @@
+Django
+djangorestframework
+djangorestframework-simplejwt
+python-dotenv
+psycopg2-binary
+pytube
+pytubefix
+assemblyai
+langchain
+langchain-google-genai
+nest_asyncio
+gunicorn
+whitenoise
+drf-spectacular
+yt-dlp
+requests
