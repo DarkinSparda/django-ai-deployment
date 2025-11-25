@@ -551,15 +551,19 @@
         <p>Powered By <a href="#">Abdullah</a></p>
     </footer>
 
+    <!-- Store content safely as JSON -->
+    {{ blog_article_detail.generated_content|json_script:"blog-content-data" }}
+    {{ blog_article_detail.video_lang|json_script:"blog-lang-data" }}
+    
     <script>
         // Parse markdown content and render it
         document.addEventListener('DOMContentLoaded', function() {
             const blogContent = document.getElementById('blogContent');
-            const markdownText = `{{ blog_article_detail.generated_content|safe }}`;
-            const langCode = `{{ blog_article_detail.video_lang|safe }}`;
+            const markdownText = JSON.parse(document.getElementById('blog-content-data').textContent);
+            const langCode = JSON.parse(document.getElementById('blog-lang-data').textContent);
 
             // Parse markdown to HTML
-            const htmlContent = marked.parse(markdownText);
+            const htmlContent = marked.parse(markdownText || '');
             blogContent.innerHTML = htmlContent;
 
             // Apply RTL direction for Arabic
