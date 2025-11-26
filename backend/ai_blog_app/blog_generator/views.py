@@ -158,7 +158,6 @@ def user_login(request):
 def user_signup(request):
     if request.method == 'POST':
         username = request.POST['username']
-        email = request.POST['email']
         password = request.POST['password']
         repeatPassword = request.POST['repeatPassword']
         
@@ -166,7 +165,6 @@ def user_signup(request):
             try:
                 user = User.objects.create_user(
                     username=username,
-                    email=email,
                     password=password,
                 )
                 user.save()

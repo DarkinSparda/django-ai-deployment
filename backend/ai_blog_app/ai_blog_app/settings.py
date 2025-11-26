@@ -33,7 +33,8 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',') if os.getenv('ALLOWED_HOSTS') else ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://web--ai-summariser-git-repo--r6g668kflbzr.code.run/admin/login/?next=/admin/'
+    'https://web--ai-summariser-git-repo--r6g668kflbzr.code.run/'
+    'https://youtube-ai-summarizer.up.railway.app/'
     # Add your custom domain here too if you have one
 ]
 # Without this, Django thinks the connection is insecure and blocks the CSRF cookie.
