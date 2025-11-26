@@ -170,8 +170,8 @@ def user_signup(request):
                 user.save()
                 login(request, user)
                 return redirect("/")
-            except:
-                error_message = "Error creating account"
+            except Exception as e:
+                error_message = f"Error creating account: {str(e)}"
                 ctx = {"error_message": error_message}
                 return render(request, 'signup.html', ctx)
         else:

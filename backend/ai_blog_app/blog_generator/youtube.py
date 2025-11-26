@@ -14,10 +14,17 @@ from .mp3_api_client import get_mp3_url, get_video_id
 def get_youtube_metadata(link):
     """Fetch video metadata using YouTube Data API v3 via direct HTTP request"""
     import requests
+    from django.core.cache import cache
 
     video_id = get_video_id(link)
     if not video_id:
         raise ValueError("Invalid YouTube URL")
+
+    # Try to get from cache first
+    cache_key = f'metadata_{video_id}'
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
 
     # Make direct HTTP request to YouTube Data API v3
     url = 'https://www.googleapis.com/youtube/v3/videos'
@@ -37,12 +44,17 @@ def get_youtube_metadata(link):
 
     snippet = data['items'][0]['snippet']
     title = snippet['title']
-    default_audio_language = snippet.get('defaultAudioLanguage', 'en')
+    default_audio_language = snippet.get('defaultAudioLanguage', 'None')
 
     # Extract just the language code (e.g., 'en' from 'en-US')
     lang_code = default_audio_language.split('-')[0]
 
-    return title, lang_code
+    result = (title, lang_code)
+
+    # Cache for 7 days (metadata rarely changes)
+    cache.set(cache_key, result, timeout=604800)
+
+    return result
 
 def yt_title(link):
     """Get YouTube video title using official API"""
@@ -94,9 +106,25 @@ def download_audio(link):
     return output_path, lang_code
 
 def get_transcription(link):
+    from django.core.cache import cache
+
+    # Try to get from cache first
+    video_id = get_video_id(link)
+    cache_key = f'transcript_{video_id}'
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    # If not in cache, do the expensive operations
     audio_file, lang_code = download_audio(link)
     aai.settings.api_key = settings.ASSEMBLY_AI_API
-    config = aai.TranscriptionConfig(language_code=lang_code)
+    if lang_code:
+        # Use the known language code
+        config = aai.TranscriptionConfig(language_code=lang_code)
+    else:
+        # Auto-detect the language
+        config = aai.TranscriptionConfig(language_detection=True)
+
     transcriber = aai.Transcriber(config=config)
     transcript = transcriber.transcribe(audio_file)
 
@@ -104,7 +132,12 @@ def get_transcription(link):
     if os.path.exists(audio_file):
         os.remove(audio_file)
 
-    return transcript.text, lang_code
+    result = (transcript.text, lang_code)
+
+    # Cache for 7 days (transcripts don't change)
+    cache.set(cache_key, result, timeout=604800)
+
+    return result
 
 
 

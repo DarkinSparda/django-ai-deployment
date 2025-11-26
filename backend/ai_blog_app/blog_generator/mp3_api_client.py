@@ -7,10 +7,10 @@ def get_video_id(url):
     patterns = [
         r'(?:v=|\/)([0-9A-Za-z_-]{11}).*',
         r'(?:embed\/)([0-9A-Za-z_-]{11})',
-        r'(?:youtu\.be\/)([0-9A-Za-z_-]{11})'
+        r'(?:youtu\.be\/)([0-9A-Za-z_-]{11})',
         r'(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)',
         r'youtube\.com\/embed\/([^&\n?#]+)',
-        r'youtube\.com\/v\/([^&\n?#]+)'
+        r'youtube\.com\/v\/([^&\n?#]+)',
     ]
     
     for pattern in patterns:
@@ -26,7 +26,6 @@ def get_mp3_url(video_link):
     url = "https://youtube-mp36.p.rapidapi.com/dl"
 
     querystring = {"id": video_id}
-    print(settings.RAPID_API_YT_KEY)
     headers = {
         "x-rapidapi-key": settings.RAPID_API_YT_KEY,
         "x-rapidapi-host": "youtube-mp36.p.rapidapi.com"

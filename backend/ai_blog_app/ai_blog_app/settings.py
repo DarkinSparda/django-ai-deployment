@@ -33,8 +33,8 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',') if os.getenv('ALLOWED_HOSTS') else ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://web--ai-summariser-git-repo--r6g668kflbzr.code.run/'
-    'https://youtube-ai-summarizer.up.railway.app/'
+    'https://web--ai-summariser-git-repo--r6g668kflbzr.code.run',
+    'https://youtube-ai-summarizer.up.railway.app',
     # Add your custom domain here too if you have one
 ]
 # Without this, Django thinks the connection is insecure and blocks the CSRF cookie.
@@ -179,6 +179,18 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Cache configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': BASE_DIR / 'cache',
+        'TIMEOUT': 86400,  # 24 hours default
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
 
 # API Keys from environment variables
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
